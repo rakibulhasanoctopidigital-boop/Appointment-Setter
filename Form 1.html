@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setter Application | Astral System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #f9f8ff;
+      --border: #e8e4f0;
+      --text: #1a1520;
+      --muted: #8b859e;
+      --muted2: #5c566e;
+      --purple: #7c5cbf;
+      --purple-l: #9b7ed4;
+      --purple-bg: #f0ecff;
+      --purple-xl: #faf8ff;
+      --glow: rgba(124, 92, 191, 0.1);
+      --green: #16a34a;
+      --green-bg: #f0fdf4;
+      --red: #dc2626;
+      --red-bg: #fef2f2;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .form-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 0 60px;
+    }
+
+    /* ── STEPS INDICATOR ── */
+    .steps-row {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .step {
+      flex: 1;
+      padding: 16px 20px;
+      border-right: 1px solid var(--border);
+      position: relative;
+      background: var(--bg);
+      transition: background 0.3s;
+    }
+
+    .step:last-child {
+      border-right: none;
+    }
+
+    .step.active {
+      background: var(--purple-xl);
+    }
+
+    .step.done {
+      background: var(--bg);
+    }
+
+    .step.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--purple);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      background: var(--border);
+      color: var(--muted);
+      margin-bottom: 8px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .step.active .step-num {
+      background: var(--purple);
+      color: #fff;
+    }
+
+    .step.done .step-num {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .step-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .step-desc {
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── STEP PANELS ── */
+    .step-panel {
+      display: none;
+    }
+
+    .step-panel.active {
+      display: block;
+    }
+
+    /* ── STEP HEADING ── */
+    .step-heading {
+      margin-bottom: 24px;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--purple-bg);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--purple);
+      margin-bottom: 12px;
+    }
+
+    .step-heading h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .step-heading p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* ── BLOCKS ── */
+    .block {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 16px;
+      background: var(--bg);
+    }
+
+    .block-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-bottom: 14px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── GRID ── */
+    .fg {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--muted2);
+    }
+
+    label .req {
+      color: var(--purple);
+      margin-left: 2px;
+    }
+
+    input,
+    select,
+    textarea {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: var(--text);
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #c5bfd4;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+
+    input.error,
+    select.error,
+    textarea.error {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+
+    .error-msg {
+      font-size: 0.7rem;
+      color: var(--red);
+      margin-top: 2px;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%238b859e' d='M5 7L.67 2h8.66z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 108px;
+      line-height: 1.6;
+    }
+
+    /* ── DRIVE HINT BOX ── */
+    .drive-hint {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      font-size: 0.78rem;
+      color: #166534;
+      line-height: 1.6;
+    }
+
+    .drive-hint strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+    }
+
+    /* ── LOOM BOX ── */
+    .loom-hint {
+      background: var(--purple-bg);
+      border: 1px solid rgba(124, 92, 191, 0.2);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-top: 16px;
+    }
+
+    .loom-hint-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--purple);
+      margin-bottom: 10px;
+    }
+
+    .loom-hint ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .loom-hint ul li {
+      font-size: 0.8rem;
+      color: var(--muted2);
+      display: flex;
+      gap: 8px;
+    }
+
+    .loom-hint ul li::before {
+      content: '—';
+      color: var(--purple);
+      flex-shrink: 0;
+    }
+
+    /* ── INFO BOXES ── */
+    .info-boxes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .info-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+
+    .info-box-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .info-box p {
+      font-size: 0.76rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--purple);
+      border: none;
+      border-radius: 8px;
+      padding: 13px 32px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--purple-l);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--muted);
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 22px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-back:hover {
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 15px;
+      height: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .btn-primary.loading .spinner {
+      display: block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── BANNERS ── */
+    .banner {
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      display: none;
+      align-items: flex-start;
+      gap: 12px;
+      line-height: 1.5;
+    }
+
+    .banner.show {
+      display: flex;
+    }
+
+    .banner-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .banner.success {
+      background: var(--green-bg);
+      border: 1px solid #bbf7d0;
+      color: var(--green);
+    }
+
+    .banner.error-b {
+      background: var(--red-bg);
+      border: 1px solid #fecaca;
+      color: var(--red);
+    }
+
+    /* ── SUCCESS SCREEN ── */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .success-screen.show {
+      display: block;
+    }
+
+    .success-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .success-screen h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .success-screen p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-zone {
+      position: relative;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 34px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--surface);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--purple);
+      background: var(--purple-xl);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+    }
+
+    .upload-icon {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .upload-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted2);
+    }
+
+    .upload-hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .upload-name {
+      display: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--green);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .fg {
+        grid-template-columns: 1fr;
+      }
+
+      .steps-row {
+        flex-direction: column;
+      }
+
+      .info-boxes {
+        grid-template-columns: 1fr;
+      }
+
+      .block {
+        padding: 20px 16px;
+      }
+
+      .btn-row {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="form-wrap">
+
+    <!-- ERROR BANNER -->
+    <div class="banner error-b" id="errorBanner">
+      <span class="banner-icon">⚠️</span>
+      <div id="errorBannerText">Something went wrong. Please try again or email us at info@astral-system.com</div>
+    </div>
+
+    <!-- STEPS INDICATOR -->
+    <div class="steps-row" id="stepsRow">
+      <div class="step active" id="stepTab1">
+        <div class="step-num">1</div>
+        <div class="step-title">Your Details</div>
+        <div class="step-desc">Personal info &amp; answers</div>
+      </div>
+      <div class="step" id="stepTab2">
+        <div class="step-num">2</div>
+        <div class="step-title">CV &amp; Cover Letter</div>
+        <div class="step-desc">Upload your documents</div>
+      </div>
+      <div class="step" id="stepTab3">
+        <div class="step-num">3</div>
+        <div class="step-title">Loom Video</div>
+        <div class="step-desc">Your intro video</div>
+      </div>
+    </div>
+
+    <form id="applicationForm" novalidate>
+
+      <!-- ══════════════════ STEP 1 ══════════════════ -->
+      <div class="step-panel active" id="panel1">
+
+        <div class="step-heading">
+          <div class="step-badge">🚀 Step 1 of 3</div>
+          <h2>Fill Out the Form</h2>
+          <p>Your personal details and position-specific answers.</p>
+        </div>
+
+        <div class="block">
+          <div class="block-label">Application Form</div>
+          <div class="fg">
+
+            <div class="form-group">
+              <label for="firstName">First Name <span class="req">*</span></label>
+              <input type="text" id="firstName" name="firstName" placeholder="Jane" />
+              <span class="error-msg" id="err-firstName">Please enter your first name</span>
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name <span class="req">*</span></label>
+              <input type="text" id="lastName" name="lastName" placeholder="Smith" />
+              <span class="error-msg" id="err-lastName">Please enter your last name</span>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address <span class="req">*</span></label>
+              <input type="email" id="email" name="email" placeholder="jane@example.com" />
+              <span class="error-msg" id="err-email">Please enter a valid email address</span>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000" />
+            </div>
+
+            <div class="form-group">
+              <label for="linkedin">LinkedIn Profile URL</label>
+              <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/yourprofile" />
+            </div>
+
+            <div class="form-group">
+              <label for="instagram">Instagram Profile <span class="req">*</span></label>
+              <input type="text" id="instagram" name="instagram" placeholder="@yourhandle" />
+              <span class="error-msg" id="err-instagram">Please enter your Instagram handle</span>
+            </div>
+
+            <div class="form-group full">
+              <label for="experience">Tell us about your relevant experience <span class="req">*</span></label>
+              <textarea id="experience" name="experience"
+                placeholder="Share your background, outreach experience, and any relevant skills…"></textarea>
+              <span class="error-msg" id="err-experience">Please tell us about your experience</span>
+            </div>
+
+            <div class="form-group full">
+              <label for="startDate">When can you start? <span class="req">*</span></label>
+              <select id="startDate" name="startDate">
+                <option value="" disabled selected>Select availability…</option>
+                <option>Immediately</option>
+                <option>Within 1–2 weeks</option>
+                <option>Within 2–4 weeks</option>
+                <option>1 month or more</option>
+              </select>
+              <span class="error-msg" id="err-startDate">Please select your availability</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-label">📋 Position-Specific Questions</div>
+          <div class="fg">
+
+            <div class="form-group full">
+              <label for="coldCallingExp">Describe your cold calling or appointment setting experience <span
+                  class="req">*</span></label>
+              <textarea id="coldCallingExp" name="coldCallingExp"
+                placeholder="Walk us through your experience with cold outreach, scripts, objection handling, CRMs…"></textarea>
+              <span class="error-msg" id="err-coldCallingExp">Please describe your outreach experience</span>
+            </div>
+
+            <div class="form-group full">
+              <label for="callsPerDay">How many outreach touchpoints per day are you comfortable with? <span
+                  class="req">*</span></label>
+              <input type="text" id="callsPerDay" name="callsPerDay"
+                placeholder="e.g. 60–80 LinkedIn messages + 20 cold calls" />
+              <span class="error-msg" id="err-callsPerDay">Please answer this question</span>
+            </div>
+
+            <div class="form-group full">
+              <label for="timezone">What hours and timezone are you available to work? <span
+                  class="req">*</span></label>
+              <input type="text" id="timezone" name="timezone" placeholder="e.g. 9am–6pm GST, Monday to Friday" />
+              <span class="error-msg" id="err-timezone">Please enter your availability</span>
+            </div>
+
+            <div class="form-group full">
+              <label for="whyAstral">Why do you want to work at Astral System? <span class="req">*</span></label>
+              <textarea id="whyAstral" name="whyAstral"
+                placeholder="Tell us what excites you about this opportunity and why you're a strong fit…"></textarea>
+              <span class="error-msg" id="err-whyAstral">Please tell us why you want to join</span>
+            </div>
+
+            <div class="form-group full">
+              <label for="additionalInfo">Anything else you'd like us to know?</label>
+              <textarea id="additionalInfo" name="additionalInfo"
+                placeholder="Optional — share anything you feel is relevant…" style="min-height:80px;"></textarea>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="info-boxes">
+          <div class="info-box">
+            <div class="info-box-title">📣 Reminder</div>
+            <p>Use the same email address across all 3 steps to keep your application connected.</p>
+          </div>
+          <div class="info-box">
+            <div class="info-box-title">💡 Tip</div>
+            <p>After this form, you'll upload your CV + cover letter and record a short Loom video.</p>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <div></div>
+          <button type="button" class="btn-primary" id="nextBtn1">
+            Continue to Step 2
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 7h10M7 2l5 5-5 5" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════ STEP 2 ══════════════════ -->
+      <div class="step-panel" id="panel2">
+
+        <div class="step-heading">
+          <div class="step-badge">📄 Step 2 of 3</div>
+          <h2>Submit Your CV &amp; Cover Letter</h2>
+          <p>Upload your documents or share a link — either works.</p>
+        </div>
+
+        <div class="block">
+          <div class="block-label">CV</div>
+          <div class="fg">
+            <div class="form-group full">
+              <label>Upload Your CV <span class="req">*</span></label>
+              <div class="upload-zone">
+                <input type="file" id="cvFile" name="cvFile" accept=".pdf,.doc,.docx" />
+                <div class="upload-icon">📄</div>
+                <div class="upload-title">Click to upload your CV</div>
+                <div class="upload-hint">PDF or Word · max 10MB</div>
+                <div class="upload-name" id="cvFileName"></div>
+              </div>
+              <span class="error-msg" id="err-cvFile">Please upload your CV or paste a link below</span>
+            </div>
+            <div class="form-group full">
+              <label for="cvLink">Or paste a link to your CV <span style="color:var(--muted);font-weight:400;">(Google
+                  Drive, Dropbox, etc.)</span></label>
+              <input type="url" id="cvLink" name="cvLink" placeholder="https://drive.google.com/file/…" />
+            </div>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="block-label">Cover Letter</div>
+          <div class="fg">
+            <div class="form-group full">
+              <label>Upload Your Cover Letter <span class="req">*</span></label>
+              <div class="upload-zone">
+                <input type="file" id="clFile" name="clFile" accept=".pdf,.doc,.docx" />
+                <div class="upload-icon">📝</div>
+                <div class="upload-title">Click to upload your Cover Letter</div>
+                <div class="upload-hint">PDF or Word · max 10MB</div>
+                <div class="upload-name" id="clFileName"></div>
+              </div>
+              <span class="error-msg" id="err-clFile">Please upload your cover letter or paste a link below</span>
+            </div>
+            <div class="form-group full">
+              <label for="clLink">Or paste a link to your Cover Letter <span
+                  style="color:var(--muted);font-weight:400;">(Google Drive, Dropbox, etc.)</span></label>
+              <input type="url" id="clLink" name="clLink" placeholder="https://drive.google.com/file/…" />
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-back" id="backBtn2">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 7H2M7 12L2 7l5-5" />
+            </svg>
+            Back
+          </button>
+          <button type="button" class="btn-primary" id="nextBtn2">
+            Continue to Step 3
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 7h10M7 2l5 5-5 5" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════ STEP 3 ══════════════════ -->
+      <div class="step-panel" id="panel3">
+
+        <div class="step-heading">
+          <div class="step-badge">🎥 Step 3 of 3</div>
+          <h2>Your Introduction Video</h2>
+          <p>Upload your video file or paste a Loom link — either works.</p>
+        </div>
+
+        <div class="block">
+          <div class="block-label">Video</div>
+          <div class="fg">
+
+            <div class="form-group full">
+              <label>Upload Your Video <span class="req">*</span></label>
+              <div class="upload-zone">
+                <input type="file" id="videoFile" name="videoFile" accept="video/*,.mp4,.mov,.avi" />
+                <div class="upload-icon">🎬</div>
+                <div class="upload-title">Click to upload your video</div>
+                <div class="upload-hint">MP4, MOV · max 500MB</div>
+                <div class="upload-name" id="videoFileName"></div>
+              </div>
+              <span class="error-msg" id="err-videoFile">Please upload a video or paste a Loom link below</span>
+            </div>
+
+            <div class="form-group full">
+              <label for="loomUrl">Or paste your Loom / video link <span
+                  style="color:var(--muted);font-weight:400;">(Loom, Google Drive, YouTube unlisted,
+                  etc.)</span></label>
+              <input type="url" id="loomUrl" name="loomUrl" placeholder="https://www.loom.com/share/…" />
+            </div>
+
+          </div>
+
+          <div class="loom-hint" style="margin-top:20px;">
+            <div class="loom-hint-title">🎯 What to cover in your video (max 5 minutes)</div>
+            <ul>
+              <li>Why you're a strong fit for this Setter role</li>
+              <li>Your previous outreach or sales experience</li>
+              <li>Why you want to work with Astral System specifically</li>
+              <li>The income level you're aiming for in the next 6–12 months</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-back" id="backBtn3">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 7H2M7 12L2 7l5-5" />
+            </svg>
+            Back
+          </button>
+          <button type="button" class="btn-primary" id="submitBtn">
+            <span class="btn-text">Submit Application</span>
+            <div class="spinner"></div>
+            <svg class="arrow-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M2 7h10M7 2l5 5-5 5" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+    </form>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">🎉</div>
+      <h2>Application Submitted!</h2>
+      <p>We've received your full application and will be in touch within 5 business days. Good luck!</p>
+    </div>
+
+  </div>
+
+  <script>
+    // ════════════════════════════════════════════════════════
+    // � CONFIGURATION — Fill in your GHL credentials below
+    // ════════════════════════════════════════════════════════
+    const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/VCuRrweOCvIBspfmXXkp/webhook-trigger/2f3c6293-3a3c-4c91-89b1-b90957f508b9';
+    const GHL_API_KEY = 'pit-7f08004b-01b6-4ef0-b758-afa656dab847';       // Paste your GHL Private Integration / API key
+    const GHL_LOCATION_ID = 'VCuRrweOCvIBspfmXXkp';   // Paste your GHL Sub-Account Location ID
+    // ════════════════════════════════════════════════════════
+
+    // ── Upload a File object to GHL Media Library ──
+    // Returns the public URL of the uploaded file, or throws on failure.
+    async function uploadToGHL(file, label) {
+      setSubmitStatus(`Uploading ${label}…`);
+      const form = new FormData();
+      form.append('file', file, file.name);
+      form.append('name', file.name);
+
+      const res = await fetch('https://services.leadconnectorhq.com/medias/upload-file', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + GHL_API_KEY,
+          'Version': '2021-07-28',
+          'location-id': GHL_LOCATION_ID
+        },
+        body: form
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`GHL upload failed for "${label}": HTTP ${res.status} — ${errText}`);
+      }
+
+      const data = await res.json();
+      // Log full response so we can see the exact shape GHL returns
+      console.log(`[GHL Upload] "${label}" response:`, JSON.stringify(data));
+      // Try every known GHL response field that might contain the file URL
+      return (
+        data.url ||
+        data.fileUrl ||
+        data.mediaUrl ||
+        data.src ||
+        data.altId ||
+        data.path ||
+        data.data?.url ||
+        data.data?.fileUrl ||
+        data.data?.src ||
+        (Array.isArray(data.urls) ? data.urls[0] : '') ||
+        ''
+      );
+    }
+
+    function setSubmitStatus(text) {
+      const el = document.querySelector('#submitBtn .btn-text');
+      if (el) el.textContent = text;
+    }
+
+    let currentStep = 1;
+
+    // ── Helpers ──
+    function goToStep(n) {
+      // Hide all panels
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel' + n).classList.add('active');
+
+      // Update tab indicators
+      for (let i = 1; i <= 3; i++) {
+        const tab = document.getElementById('stepTab' + i);
+        tab.classList.remove('active', 'done');
+        if (i < n) tab.classList.add('done');
+        if (i === n) tab.classList.add('active');
+        // Tick done steps
+        const numEl = tab.querySelector('.step-num');
+        if (i < n) numEl.textContent = '✓';
+        else numEl.textContent = i;
+      }
+
+      currentStep = n;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      const err = document.getElementById('err-' + id);
+      if (el) el.classList.add('error');
+      if (err) { if (msg) err.textContent = msg; err.classList.add('show'); }
+    }
+    function clearError(id) {
+      const el = document.getElementById(id);
+      const err = document.getElementById('err-' + id);
+      if (el) el.classList.remove('error');
+      if (err) err.classList.remove('show');
+    }
+
+    // ── Live clear errors ──
+    ['firstName', 'lastName', 'email', 'instagram', 'experience', 'startDate',
+      'coldCallingExp', 'callsPerDay', 'timezone', 'whyAstral'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => clearError(id));
+      });
+
+    // ── File upload display helper ──
+    function bindFileDisplay(inputId, nameId, errorId) {
+      const el = document.getElementById(inputId);
+      if (!el) return;
+      el.addEventListener('change', function () {
+        if (this.files[0]) {
+          const nameEl = document.getElementById(nameId);
+          nameEl.textContent = '✓ ' + this.files[0].name;
+          nameEl.style.display = 'block';
+          clearError(errorId);
+        }
+      });
+    }
+    bindFileDisplay('cvFile', 'cvFileName', 'cvFile');
+    bindFileDisplay('clFile', 'clFileName', 'clFile');
+    bindFileDisplay('videoFile', 'videoFileName', 'videoFile');
+
+    // Clear file errors when link typed
+    document.getElementById('cvLink').addEventListener('input', () => clearError('cvFile'));
+    document.getElementById('clLink').addEventListener('input', () => clearError('clFile'));
+    document.getElementById('loomUrl').addEventListener('input', () => clearError('videoFile'));
+
+    // ── Step 1 validation ──
+    document.getElementById('nextBtn1').addEventListener('click', () => {
+      let valid = true;
+      const required1 = ['firstName', 'lastName', 'email', 'instagram', 'experience', 'startDate', 'coldCallingExp', 'callsPerDay', 'timezone', 'whyAstral'];
+      required1.forEach(id => {
+        const el = document.getElementById(id);
+        const empty = !el.value.trim();
+        const emailBad = id === 'email' && el.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+        if (empty || emailBad) { showError(id); valid = false; }
+        else clearError(id);
+      });
+      if (!valid) {
+        document.querySelector('#panel1 .error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      goToStep(2);
+    });
+
+    // ── Step 2 validation — file OR link required ──
+    document.getElementById('nextBtn2').addEventListener('click', () => {
+      let valid = true;
+      const cvHasFile = document.getElementById('cvFile').files[0];
+      const cvHasLink = document.getElementById('cvLink').value.trim();
+      if (!cvHasFile && !cvHasLink) {
+        showError('cvFile', 'Please upload your CV or paste a link');
+        valid = false;
+      } else clearError('cvFile');
+
+      const clHasFile = document.getElementById('clFile').files[0];
+      const clHasLink = document.getElementById('clLink').value.trim();
+      if (!clHasFile && !clHasLink) {
+        showError('clFile', 'Please upload your cover letter or paste a link');
+        valid = false;
+      } else clearError('clFile');
+
+      if (!valid) return;
+      goToStep(3);
+    });
+
+    // ── Back buttons ──
+    document.getElementById('backBtn2').addEventListener('click', () => goToStep(1));
+    document.getElementById('backBtn3').addEventListener('click', () => goToStep(2));
+
+    // ── Step 3 + Final Submit ──
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+      // Video file OR link required
+      const videoHasFile = document.getElementById('videoFile').files[0];
+      const loomVal = document.getElementById('loomUrl').value.trim();
+      if (!videoHasFile && !loomVal) {
+        showError('videoFile', 'Please upload a video or paste a link');
+        return;
+      }
+      clearError('videoFile');
+
+      // Loading state
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.querySelector('.arrow-icon').style.display = 'none';
+
+      document.getElementById('errorBanner').classList.remove('show');
+
+      // ── Upload files to GHL Media Library (if files were selected) ──
+      let cvUrl = document.getElementById('cvLink').value.trim();
+      let coverLetterUrl = document.getElementById('clLink').value.trim();
+      let videoUrl = loomVal;
+
+      const cvFile = document.getElementById('cvFile').files[0];
+      const clFile = document.getElementById('clFile').files[0];
+      const videoFile = document.getElementById('videoFile').files[0];
+
+      try {
+        // Only upload if the API key has been configured
+        const apiConfigured = GHL_API_KEY && GHL_API_KEY !== 'YOUR_GHL_API_KEY_HERE';
+
+        if (apiConfigured) {
+          if (cvFile) cvUrl = await uploadToGHL(cvFile, 'CV');
+          if (clFile) coverLetterUrl = await uploadToGHL(clFile, 'Cover Letter');
+          if (videoFile) videoUrl = await uploadToGHL(videoFile, 'Video');
+        } else {
+          // No API key — fall back to including just the filenames in the payload
+          console.warn('GHL API key not configured — files will not be uploaded to Media Library. Only filenames will be sent.');
+        }
+
+        setSubmitStatus('Sending application…');
+
+        // ── Build payload ──
+        const payload = {
+          firstName: document.getElementById('firstName').value.trim(),
+          lastName: document.getElementById('lastName').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          phone: document.getElementById('phone').value.trim(),
+          linkedin: document.getElementById('linkedin').value.trim(),
+          instagram: document.getElementById('instagram').value.trim(),
+          experience: document.getElementById('experience').value.trim(),
+          startDate: document.getElementById('startDate').value,
+          coldCallingExp: document.getElementById('coldCallingExp').value.trim(),
+          callsPerDay: document.getElementById('callsPerDay').value.trim(),
+          timezone: document.getElementById('timezone').value.trim(),
+          whyAstral: document.getElementById('whyAstral').value.trim(),
+          additionalInfo: document.getElementById('additionalInfo').value.trim(),
+          // File data — URLs if uploaded to GHL, otherwise the pasted link
+          cvUrl: cvUrl,
+          cvFileName: cvFile?.name || '',
+          coverLetterUrl: coverLetterUrl,
+          coverLetterFileName: clFile?.name || '',
+          videoUrl: videoUrl,
+          videoFileName: videoFile?.name || '',
+          source: 'Setter Application Form',
+          submittedAt: new Date().toISOString()
+        };
+
+        const res = await fetch(GHL_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          // Hide form, show success
+          document.getElementById('stepsRow').style.display = 'none';
+          document.getElementById('applicationForm').style.display = 'none';
+          document.getElementById('successScreen').classList.add('show');
+        } else {
+          throw new Error('Server responded with status ' + res.status);
+        }
+      } catch (err) {
+        document.getElementById('errorBannerText').textContent =
+          'Something went wrong: ' + err.message + '. Please try again or email us at info@astral-system.com';
+        document.getElementById('errorBanner').classList.add('show');
+        document.getElementById('errorBanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        console.error(err);
+      } finally {
+        setSubmitStatus('Submit Application');
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.querySelector('.arrow-icon').style.display = '';
+      }
+    });
+  </script>
+
+</body>
+
+</html>
